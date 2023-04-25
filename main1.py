@@ -1,13 +1,7 @@
 from pprint import pprint
-## Читаем адресную книгу в формате CSV в список contacts_list:
 import csv
 import re
-from collections import defaultdict 
-
-with open("phonebook_raw.csv") as f:
-    rows = csv.reader(f, delimiter=",")
-    contacts_list = list(rows)
-    
+ 
 # Меняем телефоны и получаем список    
 def get_contacts(contacts_list):
     contacts = []
@@ -43,25 +37,20 @@ def new_list(contacts):
         new_lists.append(contacts[n * 7:])
     return new_lists
 
-a = get_contacts(contacts_list)
-# print(new_list(a))
+# убираем дубли
+def get_final_list(string):
+    new_string = {}
+    for row in string:
+        surname = row[:2]
+        fi = " ".join(surname)
+        if fi in new_string:
+            for ind, l in enumerate(new_string[fi]):
+                if not l:
+                    new_string[fi][ind] = row[ind]
+        else:
+            new_string[fi] = row
+    new_list = list(new_string.values())
 
-
-# обьединяем дубликаты
-def merge_dub(big_list):
-    new_dict = defaultdict(list)
-    for lst in big_list:
-        new_dict[lst[0]].extend(lst[1:])
-    new_list = [[k] + v for k, v in new_dict.items()]
-    return new_list
-
-# удаляем дубли в списках списка
-def del_dub(new_list):
-    for n in new_list:
-        for k in n:
-            
-            while n.count(k) > 1:
-                n.remove(k)
     return new_list
 
 
@@ -72,34 +61,17 @@ if __name__ == '__main__':
         contacts_list = list(rows)
     
     contacts = get_contacts(contacts_list)
-    print(contacts)
-    print()
+   
     big_list = new_list(contacts)
-    print(big_list)
-    print()
-    merge = merge_dub(big_list)
-    print(merge)
-    print()
-    a = del_dub(merge)
-    print(a)
-    print()
-    final_list = new_list(a)
+    
+    final_list = get_final_list(big_list)
     print(final_list)
-    
-    
 
-
-
-
-                
-## 1. Выполните пункты 1-3 задания.
-## Ваш код
-
-## 2. Сохраните получившиеся данные в другой файл.
-# ## Код для записи файла в формате CSV:
-with open("phonebook.csv", "w") as f:
-  datawriter = csv.writer(f, delimiter=',')
+    with open("phonebook.csv", "w") as f:
+        datawriter = csv.writer(f, delimiter=',')
+        datawriter.writerows(final_list)
   
-## Вместо contacts_list подставьте свой список:
-  datawriter.writerow(final_list)
-  # datawriter.writerows()
+    
+    
+
+
